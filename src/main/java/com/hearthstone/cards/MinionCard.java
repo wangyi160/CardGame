@@ -1,5 +1,6 @@
 package com.hearthstone.cards;
 
-public interface Taunt {
-
+public interface MinionCard {
+	
+	
 }

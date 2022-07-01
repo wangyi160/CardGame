@@ -5,6 +5,8 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hearthstone.cards.Card;
+import com.hearthstone.heros.Mage;
+import com.hearthstone.heros.Warrior;
 
 public class Player {
 
@@ -14,14 +16,28 @@ public class Player {
 	private int mana;
 	
 	private List<Minion> minions;
+	private Hero hero;
 	
 	// 我的轮次
 	private int turn;
 	
-	public Player() {
+	private Game game;
+	
+	public Player(Game game, String name) {
 		this.handCards = new ArrayList<>();
 		this.deckCards = new ArrayList<>();
 		this.minions = new ArrayList<>();
+		
+		switch(name) {
+		case "mage":	
+			this.hero = new Mage(this);
+			break;
+		case "warrior":
+			this.hero = new Warrior(this);
+			break;
+		}
+		
+		this.game = game;
 	}
 	
 	public void giveCard(Card card) {
@@ -73,6 +89,16 @@ public class Player {
 		this.turn = turn;
 	}
 	
+	
+	public Hero getHero() {
+		return hero;
+	}
+
+	
+	public Game getGame() {
+		return game;
+	}
+
 	public String toString() {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create(); // pretty print
 		com.hearthstone.pojo.Player pojoPlayer = new com.hearthstone.pojo.Player(this);

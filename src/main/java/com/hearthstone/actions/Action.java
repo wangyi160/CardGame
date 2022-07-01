@@ -1,6 +1,8 @@
 package com.hearthstone.actions;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.hearthstone.cards.Card;
 
 public class Action {
@@ -23,4 +25,29 @@ public class Action {
 		}
 		
 	}
+	
+	
+
+	public Source getSource() {
+		return source;
+	}
+
+	public void setSource(Source source) {
+		this.source = source;
+	}
+
+	public List<Target> getTargets() {
+		return targets;
+	}
+
+	public void setTargets(List<Target> targets) {
+		this.targets = targets;
+	}
+	
+	public String toString() {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create(); // pretty print
+		com.hearthstone.pojo.Action pojoAction = new com.hearthstone.pojo.Action(this);
+		return gson.toJson(pojoAction);
+	}
+	
 }

@@ -1,5 +1,5 @@
 package com.hearthstone.cards;
 
-public interface Charge {
+public interface RushCard {
 
 }
