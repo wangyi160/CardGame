@@ -19,10 +19,14 @@ public class MyCard extends Card implements MinionCard, TauntCard, ChargeCard
 		super(player);
 		
 		this.health = 1;
-		this.attack = 1;
+		this.attack = 2;
+		this.attackCount = 1;
 		this.mana = 2;
 		
 		this.name= "冲锋猪";
+		
+		this.mustHasTarget = false;
+		this.targetCount = 0;
 	}
 	
 	public List<Target> getMinionTargets(Minion minion) {
@@ -42,11 +46,11 @@ public class MyCard extends Card implements MinionCard, TauntCard, ChargeCard
 		
 		
 		return targets;
-	} 
+	}
 	
-	public void play() {
+	public void play(List<Target> targets, List<Integer> targetChoices) {
 		
-		super.play();
+		super.play(targets, targetChoices);
 		
 		Minion minion = null;
 		
@@ -62,7 +66,7 @@ public class MyCard extends Card implements MinionCard, TauntCard, ChargeCard
 			battleCry(minion);
 		
 		// 冲锋
-		if(this instanceof MinionCard)
+		if(this instanceof ChargeCard)
 			charge(minion);
 		
 		// 减掉player的费用
@@ -75,7 +79,7 @@ public class MyCard extends Card implements MinionCard, TauntCard, ChargeCard
 	}
 	
 	public void charge(Minion minion) {
-		minion.setCharge(true);
+		minion.resetAttackCount();
 	}
 
 	

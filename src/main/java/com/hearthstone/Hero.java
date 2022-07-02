@@ -13,8 +13,13 @@ public class Hero implements Source, Target
 	
 	protected int mana;
 	protected int attack;
+	protected int attackCount;
+	protected int remainingAttackCount;
 	protected int health;
 	protected int armor;
+	
+	protected int powerCount;
+	protected int remainingPowerCount;
 	
 	protected String name;
 	
@@ -23,6 +28,7 @@ public class Hero implements Source, Target
 				
 		this.health = 30;
 		this.attack = 0;
+		this.attackCount =1;
 		
 		this.mana = 2;
 		this.armor = 0;
@@ -44,6 +50,15 @@ public class Hero implements Source, Target
 
 	public void setAttack(int attack) {
 		this.attack = attack;
+	}
+	
+
+	public int getAttackCount() {
+		return attackCount;
+	}
+
+	public void setAttackCount(int attackCount) {
+		this.attackCount = attackCount;
 	}
 
 	public int getHealth() {
@@ -107,4 +122,39 @@ public class Hero implements Source, Target
 		return false;
 	}
 	
+	public void heroPower(List<Target> targets, List<Integer> targetChoices) {
+		
+	}
+	
+	public void attack(Target target) {
+		
+		// TODO 要考虑各种状态
+		
+		if(target instanceof Hero) {
+			Hero hero =(Hero) target;
+			
+			int armorAttack = hero.getArmor()>=this.attack? this.attack: hero.getArmor();
+			int healthAttack = this.attack - armorAttack;
+			
+			hero.setArmor(hero.getArmor() - armorAttack);
+			hero.setHealth(hero.getHealth() - healthAttack);
+			
+		}
+		else if(target instanceof Minion) {
+			target.setHealth(target.getHealth() - this.attack);
+			this.setHealth(this.health - target.getAttack());
+		}
+		
+		this.remainingAttackCount --;
+	}
+	
+	public void resetAttackCount() {
+		this.remainingAttackCount = this.attackCount;
+	}
+	
 }
+
+
+
+
+

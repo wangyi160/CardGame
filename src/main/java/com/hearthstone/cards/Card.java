@@ -14,7 +14,11 @@ public class Card implements Source, Target
 	protected int mana;
 	protected int health;
 	protected int attack;
+	protected int attackCount;
 	protected String name;
+	
+	protected boolean mustHasTarget;
+	protected int targetCount;
 	
 	protected Player player;
 	
@@ -22,7 +26,7 @@ public class Card implements Source, Target
 		this.player = player;
 	}
 	
-	public void play() {
+	public void play(List<Target> targets, List<Integer> targetChoices) {
 		
 		// 从手牌中删除
 		this.player.getHandCards().remove(this);
@@ -78,6 +82,31 @@ public class Card implements Source, Target
 		this.name = name;
 	}
 	
+	
+
+	public int getAttackCount() {
+		return attackCount;
+	}
+
+	public void setAttackCount(int attackCount) {
+		this.attackCount = attackCount;
+	}
+
+	public boolean isMustHasTarget() {
+		return mustHasTarget;
+	}
+
+	public void setMustHasTarget(boolean mustHasTarget) {
+		this.mustHasTarget = mustHasTarget;
+	}
+
+	public int getTargetCount() {
+		return targetCount;
+	}
+
+	public void setTargetCount(int targetCount) {
+		this.targetCount = targetCount;
+	}
 	
 	
 }

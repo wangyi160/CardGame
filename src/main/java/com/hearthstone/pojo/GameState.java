@@ -12,6 +12,7 @@ public class GameState {
 				
 		this.player1 = new Player(state.getPlayer1());
 		this.player2 = new Player(state.getPlayer2());
+		this.turn = state.getTurn();
 	}
 	
 }

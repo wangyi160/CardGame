@@ -12,11 +12,17 @@ public class Minion implements Source, Target {
 	private Card card;
 	private int health;
 	private int attack;
+	
+	// 每轮的攻击次数
+	private int attackCount;
+	
+	// 当前剩余的攻击次数
+	private int remainingAttackCount;
+	
 	private String name;
 	
 	private boolean cannotAttack;
 	
-	private boolean charge;
 	
 	// 上场的第几轮
 	private int round;
@@ -25,6 +31,8 @@ public class Minion implements Source, Target {
 		this.card = card;
 		this.health = this.card.getHealth();
 		this.attack = this.card.getAttack();
+		this.attackCount = this.card.getAttackCount();
+				
 		this.name = this.card.getName();
 		
 		this.round= 0 ;
@@ -54,16 +62,19 @@ public class Minion implements Source, Target {
 	public void setAttack(int attack) {
 		this.attack = attack;
 	}
-
-	public boolean isCharge() {
-		return charge;
+	
+	public int getAttackCount() {
+		return attackCount;
 	}
 
-	public void setCharge(boolean charge) {
-		this.charge = charge;
+	public void setAttackCount(int attackCount) {
+		this.attackCount = attackCount;
 	}
 	
-	
+	public void resetAttackCount() {
+		this.remainingAttackCount = this.attackCount;
+	}
+
 	public boolean isCannotAttack() {
 		return cannotAttack;
 	}
@@ -94,11 +105,32 @@ public class Minion implements Source, Target {
 	} 
 	
 	public boolean canAttack() {
-		if( !this.cannotAttack && this.attack > 0 && this.getTargets().size() > 0 ) {
+		if( !this.cannotAttack && this.attack > 0 && this.getTargets().size() > 0 && this.remainingAttackCount > 0 ) {
 			return true;
 		}
 		
 		return false;
+	}
+	
+	public void attack(Target target) {
+		
+		// TODO 要考虑各种状态
+		if(target instanceof Hero) {
+			Hero hero =(Hero) target;
+			
+			int armorAttack = hero.getArmor()>=this.attack? this.attack: hero.getArmor();
+			int healthAttack = this.attack - armorAttack;
+			
+			hero.setArmor(hero.getArmor() - armorAttack);
+			hero.setHealth(hero.getHealth() - healthAttack);
+			
+		}
+		else if(target instanceof Minion) {
+			target.setHealth(target.getHealth() - this.attack);
+			this.setHealth(this.health - target.getAttack());
+		}
+		
+		this.remainingAttackCount --;
 	}
 	
 }

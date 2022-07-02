@@ -9,6 +9,7 @@ public class Player {
 	private int turn;
 	private List<Minion> minions;
 	private List<Card> handCards;
+	private Hero hero;
 	
 	public Player( com.hearthstone.Player player ) {
 		
@@ -25,6 +26,8 @@ public class Player {
 		for( com.hearthstone.cards.Card card: player.getHandCards()) {
 			this.handCards.add(new Card(card));
 		}
+		
+		this.hero = new Hero(player.getHero());
 		
 	}
 }

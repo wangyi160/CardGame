@@ -45,6 +45,27 @@ public class Mage extends Hero
 				
 	}
 	
+	public void heroPower(List<Target> targets, List<Integer> targetChoices) {
+		Target target = targets.get(targetChoices.get(0));
+		
+		if(target instanceof Hero) {
+			Hero hero =(Hero) target;
+			
+			int armorAttack = hero.getArmor()>=this.powerAttack? this.powerAttack: hero.getArmor();
+			int healthAttack = this.powerAttack - armorAttack;
+			
+			hero.setArmor(hero.getArmor() - armorAttack);
+			hero.setHealth(hero.getHealth() - healthAttack);
+			
+		}
+		else if(target instanceof Minion) {
+			target.setHealth(target.getHealth() - this.powerAttack);
+		}
+				
+		this.player.setMana(this.player.getMana() - this.mana);
+	}
+	
+	
 	
 }
 
