@@ -9,7 +9,7 @@ import com.hearthstone.heros.Mage;
 import com.hearthstone.heros.Warrior;
 
 public class Player {
-
+	
 	private List<Card> handCards;
 	private List<Card> deckCards;
 	
@@ -40,9 +40,6 @@ public class Player {
 		this.game = game;
 	}
 	
-	public void giveCard(Card card) {
-		this.handCards.add(card);
-	}
 	
 
 	public List<Card> getHandCards() {
@@ -98,6 +95,8 @@ public class Player {
 	public Game getGame() {
 		return game;
 	}
+	
+	
 
 	public String toString() {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create(); // pretty print
@@ -105,5 +104,33 @@ public class Player {
 		return gson.toJson(pojoPlayer);
 	}
 	
+	// 一些有用的helper函数，用于测试
+	
+	// 直接给牌
+	public void giveCard(Card card) {
+		this.handCards.add(card);
+	}
+	
+	// 直接移除第n个随从，不会产生其他效果
+	public void removeMinion(int index) {
+		
+		if(this.minions.size()>index) {
+			this.minions.remove(index);
+		}
+		
+	}
 	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

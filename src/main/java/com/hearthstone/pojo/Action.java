@@ -9,8 +9,13 @@ public class Action {
 	
 	public Action(com.hearthstone.actions.Action action) {
 		
-		if(action.getSource() instanceof com.hearthstone.cards.Card) {
-			this.source = new Card((com.hearthstone.cards.Card)action.getSource());
+		if(action.getSource() instanceof com.hearthstone.cards.MinionCard) {
+						
+			this.source = new MinionCard( (com.hearthstone.cards.MinionCard)action.getSource() );
+		}
+		else if(action.getSource() instanceof com.hearthstone.cards.SpellCard) {
+			
+			this.source = new SpellCard( (com.hearthstone.cards.SpellCard)action.getSource() );
 		}
 		else if(action.getSource() instanceof com.hearthstone.Hero) {
 			this.source = new Hero( (com.hearthstone.Hero)action.getSource() );
@@ -24,7 +29,7 @@ public class Action {
 		for(com.hearthstone.actions.Target target: action.getTargets()) {
 			
 			if(target instanceof com.hearthstone.cards.Card) {
-				this.targets.add(new Card((com.hearthstone.cards.Card)target));
+				this.targets.add(new MinionCard((com.hearthstone.cards.MinionCard)target));
 			}
 			else if(target instanceof com.hearthstone.Hero) {
 				this.targets.add(new Hero( (com.hearthstone.Hero)target ));

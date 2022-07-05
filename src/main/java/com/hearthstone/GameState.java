@@ -5,6 +5,8 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hearthstone.actions.Action;
+import com.hearthstone.actions.EntityTarget;
+import com.hearthstone.actions.Target;
 import com.hearthstone.cards.Card;
 
 public class GameState {
@@ -141,19 +143,28 @@ public class GameState {
 		action.take(targetChoices);	
 		
 		// 处理hero
-		if(this.player1.getHero().getHealth()<=0) {
+		if(this.player1.getHero().getRemainingHealth()<=0) {
 			this.gameOver=true;
 		}
 		
-		if(this.player2.getHero().getHealth()<=0) {
+		if(this.player2.getHero().getRemainingHealth()<=0) {
 			this.gameOver=true;
 		}
+
+		
 		
 		// 处理minions
 		for(int i=this.player1.getMinions().size()-1;i>=0;i--) {
 			
 			Minion minion = this.player1.getMinions().get(i);
-			if(minion.getHealth()<=0) {
+			if(minion.getRemainingHealth()<=0) {
+				
+				// 从该minion的auratargets中移除
+				for(Target target: minion.getAuraTargets()) {
+					target.removeAura(minion);
+				}
+				
+				// 从player的minions列表中移除
 				this.player1.getMinions().remove(i);
 			}
 		}
@@ -161,8 +172,43 @@ public class GameState {
 		for(int i=this.player2.getMinions().size()-1;i>=0;i--) {
 			
 			Minion minion = this.player2.getMinions().get(i);
-			if(minion.getHealth()<=0) {
+			if(minion.getRemainingHealth()<=0) {
+
+				// 从该minion的auratargets中移除
+				for(Target target: minion.getAuraTargets()) {
+					target.removeAura(minion);
+				}
+
 				this.player2.getMinions().remove(i);
+			}
+		}
+		
+		// 处理auras
+		
+		
+		for(int i=0; i<this.player1.getMinions().size();i++) {
+			
+			Minion minion = this.player1.getMinions().get(i);
+			
+			if(minion.getAura()!=null) {
+				
+				for(Target target: minion.getAuraTargets()) {
+					target.addAura(minion.getAura());
+				}
+				
+			}
+		}
+		
+		for(int i=0; i<this.player2.getMinions().size();i++) {
+			
+			Minion minion = this.player2.getMinions().get(i);
+			
+			if(minion.getAura()!=null) {
+				
+				for(Target target: minion.getAuraTargets()) {
+					target.addAura(minion.getAura());
+				}
+				
 			}
 		}
 		
@@ -186,6 +232,7 @@ public class GameState {
 			
 			// 将本方hero重置attackcount
 			this.player1.getHero().resetAttackCount();
+			this.player1.getHero().resetPowerCount();
 			
 			// 将本方player的mana数设置为turn/2+1
 			this.player1.setMana(this.turn/2+1);
@@ -199,6 +246,7 @@ public class GameState {
 			
 			// 将本方hero重置attackcount
 			this.player2.getHero().resetAttackCount();
+			this.player2.getHero().resetPowerCount();
 			
 			// 将本方player的mana数设置为turn/2+1
 			this.player2.setMana(this.turn/2+1);

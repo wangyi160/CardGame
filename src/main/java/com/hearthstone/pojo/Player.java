@@ -3,6 +3,8 @@ package com.hearthstone.pojo;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 public class Player {
 	
 	private int mana;
@@ -24,7 +26,11 @@ public class Player {
 		
 		this.handCards = new ArrayList<>();
 		for( com.hearthstone.cards.Card card: player.getHandCards()) {
-			this.handCards.add(new Card(card));
+			
+			if(card instanceof com.hearthstone.cards.MinionCard)
+				this.handCards.add(new MinionCard( (com.hearthstone.cards.MinionCard)card));
+			else 
+				this.handCards.add(new SpellCard( (com.hearthstone.cards.SpellCard)card));
 		}
 		
 		this.hero = new Hero(player.getHero());

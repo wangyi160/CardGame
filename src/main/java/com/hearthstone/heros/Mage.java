@@ -7,6 +7,7 @@ import com.hearthstone.GameState;
 import com.hearthstone.Hero;
 import com.hearthstone.Minion;
 import com.hearthstone.Player;
+import com.hearthstone.actions.EntityTarget;
 import com.hearthstone.actions.Target;
 
 public class Mage extends Hero
@@ -46,6 +47,8 @@ public class Mage extends Hero
 	}
 	
 	public void heroPower(List<Target> targets, List<Integer> targetChoices) {
+		
+						
 		Target target = targets.get(targetChoices.get(0));
 		
 		if(target instanceof Hero) {
@@ -55,14 +58,16 @@ public class Mage extends Hero
 			int healthAttack = this.powerAttack - armorAttack;
 			
 			hero.setArmor(hero.getArmor() - armorAttack);
-			hero.setHealth(hero.getHealth() - healthAttack);
+			hero.causeDamage( healthAttack);
 			
 		}
 		else if(target instanceof Minion) {
-			target.setHealth(target.getHealth() - this.powerAttack);
+			Minion minion = (Minion)target;
+			minion.causeDamage(this.powerAttack);
 		}
 				
 		this.player.setMana(this.player.getMana() - this.mana);
+		this.remainingPowerCount--;
 	}
 	
 	

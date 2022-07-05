@@ -1,5 +1,5 @@
 package com.hearthstone.cards;
 
-public interface RushCard {
+public interface TauntTrait {
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.hearthstone.Hero;
 import com.hearthstone.Player;
+import com.hearthstone.actions.EntityTarget;
 import com.hearthstone.actions.Target;
 
 public class Warrior extends Hero
@@ -21,6 +22,7 @@ public class Warrior extends Hero
 		
 		this.armor += this.armorAdd;
 		this.player.setMana(this.player.getMana() - this.mana);
+		this.remainingPowerCount--;
 	}
 	
 		

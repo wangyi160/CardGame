@@ -9,6 +9,9 @@ public class Hero implements Source, Target
 	private int armor;
 	private String name;
 	
+	private int remainingHealth;
+	
+	
 	public Hero(com.hearthstone.Hero hero) {
 		
 		this.mana = hero.getMana();
@@ -17,6 +20,9 @@ public class Hero implements Source, Target
 		this.armor = hero.getArmor();
 		
 		this.name = hero.getName();
+		
+		this.remainingHealth = hero.getRemainingHealth();
+		
 		
 	}
 }

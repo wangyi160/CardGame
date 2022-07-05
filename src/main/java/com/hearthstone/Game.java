@@ -24,6 +24,9 @@ public class Game {
 		player2.setTurn(1);
 		
 		player1.giveCard(new MyCard(player1));
+		player1.giveCard(new MyCard(player1));
+		
+		player2.giveCard(new MyCard(player2));
 		player2.giveCard(new MyCard(player2));
 		
 		

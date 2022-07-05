@@ -3,24 +3,28 @@ package com.hearthstone.cards;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hearthstone.Aura;
+import com.hearthstone.Buff;
 import com.hearthstone.GameState;
 import com.hearthstone.Minion;
 import com.hearthstone.Player;
-import com.hearthstone.actions.Source;
+import com.hearthstone.actions.CardSource;
+import com.hearthstone.actions.CardTarget;
+import com.hearthstone.actions.EntitySource;
 import com.hearthstone.actions.Target;
 
-public class Card implements Source, Target
+public class Card implements CardSource, CardTarget
 {
 	protected int mana;
-	protected int health;
-	protected int attack;
-	protected int attackCount;
+	
 	protected String name;
 	
 	protected boolean mustHasTarget;
 	protected int targetCount;
 	
 	protected Player player;
+	
+	
 	
 	public Card(Player player) {
 		this.player = player;
@@ -46,25 +50,18 @@ public class Card implements Source, Target
 	}
 	
 	public List<Target> getMinionTargets(Minion minion) {
+		
+		List<Target> targets = new ArrayList<>();
+		return targets;
+	}
+	
+	public List<Target> getAuraTargets(Minion minion) {
+		
 		List<Target> targets = new ArrayList<>();
 		return targets;
 	}
 
-	public int getHealth() {
-		return health;
-	}
-
-	public void setHealth(int health) {
-		this.health = health;
-	}
-
-	public int getAttack() {
-		return attack;
-	}
-
-	public void setAttack(int attack) {
-		this.attack = attack;
-	}
+	
 
 	public Player getPlayer() {
 		return player;
@@ -84,13 +81,7 @@ public class Card implements Source, Target
 	
 	
 
-	public int getAttackCount() {
-		return attackCount;
-	}
-
-	public void setAttackCount(int attackCount) {
-		this.attackCount = attackCount;
-	}
+	
 
 	public boolean isMustHasTarget() {
 		return mustHasTarget;
@@ -107,7 +98,55 @@ public class Card implements Source, Target
 	public void setTargetCount(int targetCount) {
 		this.targetCount = targetCount;
 	}
-	
+
+	@Override
+	public void removeAura(EntitySource source) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addBuff(Buff buff) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addAura(Aura aura) {
+		// TODO Auto-generated method stub
+		
+	}
+
+//	@Override
+//	public void addAura(Aura aura) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	public void addBuff(Buff buff) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	public int getRemainingHealth() {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	
+//	@Override
+//	public void removeAura(EntitySource source) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+//
+//	@Override
+//	public void causeDamage(int damage) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 	
 }
 
