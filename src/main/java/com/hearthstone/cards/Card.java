@@ -34,6 +34,10 @@ public class Card implements CardSource, CardTarget
 		
 		// 从手牌中删除
 		this.player.getHandCards().remove(this);
+				
+		
+		// 减掉player的费用
+		this.player.setMana(this.player.getMana() - this.mana);
 	}
 
 	public int getMana() {

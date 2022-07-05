@@ -71,8 +71,6 @@ public class MyCard extends MinionCard implements  TauntTrait, ChargeTrait, Aura
 			}
 		}
 		
-		
-		
 		return targets;
 	}
 	
@@ -80,61 +78,9 @@ public class MyCard extends MinionCard implements  TauntTrait, ChargeTrait, Aura
 		
 		super.play(targets, targetChoices);
 		
-		System.out.println("执行play");
-				
-		// 生成一个minion
-		
-		if(this instanceof MinionCard) {
-			minion = new Minion(this);
-			this.player.addMinion(minion);
-			
-			
-		}
-		
-		// 战吼
-		if(this instanceof MinionCard)
-			battleCry(minion);
-		
-		// 冲锋
-		if(this instanceof ChargeTrait)
-			charge(minion);
-		
-		// 光环
-		if(this instanceof AuraTrait) {
-			aura(minion);
-		}
-		
-		// 减掉player的费用
-		this.player.setMana(this.player.getMana() - this.mana);
-		
 	}
 	
-	public void battleCry(Minion minion) {
-		
-	}
 	
-	public void charge(Minion minion) {
-		minion.resetAttackCount();
-	}
-
-	// 这个是设置自身的aura
-	public void aura(Minion minion) {
-		// TODO Auto-generated method stub
-		
-		Aura aura = new Aura(minion);
-		
-		aura.setAttackAdd(1);
-		aura.setHealthAdd(1);
-		
-		minion.setAura(aura);
-		
-//		// 找到需要aura的targets，给她们aura
-//		for(Target target: this.getAuraTargets(minion)) {
-//			target.addAura(aura);
-//		}
-		
-		
-	}
 
 	
 }
