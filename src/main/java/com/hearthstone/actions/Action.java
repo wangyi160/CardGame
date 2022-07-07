@@ -1,5 +1,6 @@
 package com.hearthstone.actions;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,11 +13,11 @@ import com.hearthstone.heros.Warrior;
 public class Action {
 
 	private Source source;
-	private List<Target> targets;
+	private Set<Target> targets;
 	
 	private String type;
 	
-	public Action(Source source, List<Target> targets, String type) {
+	public Action(Source source, Set<Target> targets, String type) {
 		
 		this.source = source;
 		this.targets = targets;
@@ -35,14 +36,15 @@ public class Action {
 			Minion minion =(Minion)this.source;
 			
 			assert targetChoices.size() == 1;
-			minion.attack( targets.get(targetChoices.get(0)));
+						
+			minion.attack( targets.iterator().next());
 		}
 		
 		else if(this.source instanceof Hero && this.type.equals("attack")) { 
 			Hero hero =(Hero)this.source;
 			
 			assert targetChoices.size() == 1;
-			hero.attack(targets.get(targetChoices.get(0)));
+			hero.attack(targets.iterator().next());
 		}
 		else if(this.source instanceof Hero && this.type.equals("power")) {
 			Hero hero =(Hero)this.source;
@@ -83,11 +85,11 @@ public class Action {
 		this.source = source;
 	}
 
-	public List<Target> getTargets() {
+	public Set<Target> getTargets() {
 		return targets;
 	}
 
-	public void setTargets(List<Target> targets) {
+	public void setTargets(Set<Target> targets) {
 		this.targets = targets;
 	}
 	

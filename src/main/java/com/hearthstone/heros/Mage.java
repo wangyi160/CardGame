@@ -1,7 +1,9 @@
 package com.hearthstone.heros;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.hearthstone.GameState;
 import com.hearthstone.Hero;
@@ -29,9 +31,9 @@ public class Mage extends Hero
 		this.powerAttack = powerAttack;
 	}
 	
-	public List<Target> getPowerTargets() {
+	public Set<Target> getPowerTargets() {
 		
-		List<Target> targets = new ArrayList<>();
+		Set<Target> targets = new HashSet<>();
 		
 		// 将对手的英雄和所有的minion都加入到targets中
 		GameState state = this.player.getGame().getGameState();

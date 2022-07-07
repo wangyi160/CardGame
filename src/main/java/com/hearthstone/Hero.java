@@ -2,8 +2,10 @@ package com.hearthstone;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.hearthstone.actions.EntitySource;
 import com.hearthstone.actions.EntityTarget;
@@ -107,9 +109,9 @@ public class Hero implements EntitySource, EntityTarget
 	}
 
 
-	public List<Target> getTargets() {
+	public Set<Target> getTargets() {
 		
-		List<Target> targets = new ArrayList<>();
+		Set<Target> targets = new HashSet<>();
 		
 		// 将对手的英雄和所有的minion都加入到targets中
 		GameState state = this.player.getGame().getGameState();
@@ -124,8 +126,8 @@ public class Hero implements EntitySource, EntityTarget
 				
 	}
 	
-	public List<Target> getPowerTargets() {
-		return new ArrayList<Target>();
+	public Set<Target> getPowerTargets() {
+		return new HashSet<Target>();
 	}
 	
 	public boolean canUsePower() {
@@ -140,7 +142,7 @@ public class Hero implements EntitySource, EntityTarget
 		return false;
 	}
 	
-	public void heroPower(List<Target> targets, List<Integer> targetChoices) {
+	public void heroPower(Set<Target> targets, List<Integer> targetChoices) {
 		
 	}
 	

@@ -1,11 +1,16 @@
 package com.hearthstone.cards;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.hearthstone.Aura;
+import com.hearthstone.GameState;
 import com.hearthstone.Minion;
 import com.hearthstone.Player;
 import com.hearthstone.actions.Target;
+import com.hearthstone.cards.util.CardUtil;
 
 public class MinionCard extends Card {
 
@@ -16,12 +21,18 @@ public class MinionCard extends Card {
 	protected int attack;
 	protected int attackCount;
 	
+	protected boolean charge;
+	protected boolean rush;
+	protected boolean taunt;
+	protected boolean dormant;
+	protected int dormantRound;
+	
 	public MinionCard(Player player) {
 		super(player);
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void play(List<Target> targets, List<Integer> targetChoices) {
+	public void play(Set<Target> targets, List<Integer> targetChoices) {
 		super.play(targets, targetChoices);
 		
 		// 生成一个minion
@@ -33,10 +44,8 @@ public class MinionCard extends Card {
 		// 战吼
 		battleCry(minion);
 		
-		// 冲锋
-		if(this instanceof ChargeTrait)
-			charge(minion);
 		
+			
 		// 光环
 		if(this instanceof AuraTrait) {
 			aura(minion);
@@ -96,4 +105,51 @@ public class MinionCard extends Card {
 		this.attackCount = attackCount;
 	}
 	
+		
+	public boolean isCharge() {
+		return charge;
+	}
+
+	public void setCharge(boolean charge) {
+		this.charge = charge;
+	}
+
+	public boolean isRush() {
+		return rush;
+	}
+
+	public void setRush(boolean rush) {
+		this.rush = rush;
+	}
+
+	public boolean isTaunt() {
+		return taunt;
+	}
+
+	public void setTaunt(boolean taunt) {
+		this.taunt = taunt;
+	}
+
+	public boolean isDormant() {
+		return dormant;
+	}
+
+	public void setDormant(boolean dormant) {
+		this.dormant = dormant;
+	}
+
+	
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+

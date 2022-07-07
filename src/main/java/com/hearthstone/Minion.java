@@ -2,14 +2,19 @@ package com.hearthstone;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.hearthstone.actions.EntitySource;
 import com.hearthstone.actions.EntityTarget;
 import com.hearthstone.actions.Target;
 import com.hearthstone.cards.Card;
+
 import com.hearthstone.cards.MinionCard;
+
+import com.hearthstone.cards.util.CardUtil;
 
 public class Minion implements EntitySource, EntityTarget {
 	
@@ -40,7 +45,10 @@ public class Minion implements EntitySource, EntityTarget {
 	// 自身的aura
 	private Aura aura;
 	
-	
+	private boolean charge;
+	private boolean rush;
+	private boolean taunt;
+	private boolean dormant;
 	
 	// 上场的第几轮
 	private int round;
@@ -55,8 +63,7 @@ public class Minion implements EntitySource, EntityTarget {
 		
 		this.round= 0 ;
 		this.cannotAttack = false;
-		
-		
+				
 		this.auras = new HashMap<>();
 		
 		
@@ -65,6 +72,30 @@ public class Minion implements EntitySource, EntityTarget {
 		this.attack = this.baseAttack;
 		
 		this.remainingHealth = this.health;
+		
+		// 几大属性
+		this.charge = this.card.isCharge();
+		this.rush = this.card.isRush();
+		this.taunt = this.card.isTaunt();
+		this.dormant = this.card.isDormant();
+	}
+	
+	
+
+	public boolean isCharge() {
+		return this.charge;
+	}
+
+	public boolean isRush() {
+		return this.rush;
+	}
+
+	public boolean isTaunt() {
+		return this.taunt;
+	}
+	
+	public boolean isDormant() {
+		return dormant;
 	}
 
 	public Card getCard() {
@@ -133,9 +164,27 @@ public class Minion implements EntitySource, EntityTarget {
 		this.name = name;
 	}
 
-	// 继承了card的minion targets
-	public List<Target> getTargets() {
-		return this.card.getMinionTargets(this);
+	// 获取攻击目标，由于后期的charge等状态可能有所改变，所以不再继承card
+	public Set<Target> getTargets() {
+		Set<Target> targets = new HashSet<>();
+		
+		// 处理冲锋
+		if(this.charge ) {
+			targets.addAll(CardUtil.parseTargets(this.card, "op_attackable"));
+			
+		}
+		
+		// 处理突袭
+		if(this.rush ) {
+			targets.addAll(CardUtil.parseTargets(this.card, "op_attackable_minions"));
+		}
+		
+		// 判断轮数
+		if(this.getRound() > 0) {
+			targets.addAll(CardUtil.parseTargets(this.card, "op_attackable"));
+		}
+		
+		return targets;
 	} 
 		
 	public boolean canAttack() {
@@ -239,7 +288,7 @@ public class Minion implements EntitySource, EntityTarget {
 		this.aura = aura;
 	}
 	
-	public List<Target> getAuraTargets() {
+	public Set<Target> getAuraTargets() {
 		return this.card.getAuraTargets(this);
 	}
 

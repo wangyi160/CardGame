@@ -75,16 +75,19 @@ public class Game {
 				List<Integer> targetChoices = new ArrayList<>();
 				
 				if( actions.get(actionChoice).getChoiceCount() > 0  ) {
-					for(int i=0; i<actions.get(actionChoice).getTargets().size(); i++) {
+					
+					int i=0;
+					while(actions.get(actionChoice).getTargets().iterator().hasNext()) {
 						System.out.println(i);
-						System.out.println(actions.get(actionChoice).getTargets().get(i));
+						System.out.println(actions.get(actionChoice).getTargets().iterator().next());
+						i++;
 					}
 					
 					System.out.println("you have "+ actions.get(actionChoice).getChoiceCount() + " choices");
 					
 					// 选择目标去执行, 因为目标可能不唯一，所以是个数组
 					
-					for(int i=0;i<actions.get(actionChoice).getChoiceCount();i++) {
+					for(i=0;i<actions.get(actionChoice).getChoiceCount();i++) {
 						System.out.println("which target to choose:");
 						String line2 = cin.nextLine();
 						int targetChoice = Integer.parseInt(line2);

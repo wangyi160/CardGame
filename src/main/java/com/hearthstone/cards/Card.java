@@ -1,7 +1,9 @@
 package com.hearthstone.cards;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.hearthstone.Aura;
 import com.hearthstone.Buff;
@@ -24,18 +26,17 @@ public class Card implements CardSource, CardTarget
 	
 	protected Player player;
 	
-	
+	protected int damage; // 对于法术牌，这个是直接造成的伤害，对于随从牌，这个是战吼造成的伤害
 	
 	public Card(Player player) {
 		this.player = player;
 	}
 	
-	public void play(List<Target> targets, List<Integer> targetChoices) {
+	public void play(Set<Target> targets, List<Integer> targetChoices) {
 		
 		// 从手牌中删除
 		this.player.getHandCards().remove(this);
 				
-		
 		// 减掉player的费用
 		this.player.setMana(this.player.getMana() - this.mana);
 	}
@@ -48,20 +49,16 @@ public class Card implements CardSource, CardTarget
 		this.mana = mana;
 	}
 	
-	public List<Target> getTargets() {
-		List<Target> targets = new ArrayList<>();
+	public Set<Target> getTargets() {
+		Set<Target> targets = new HashSet<>();
 		return targets;
 	}
 	
-	public List<Target> getMinionTargets(Minion minion) {
-		
-		List<Target> targets = new ArrayList<>();
-		return targets;
-	}
 	
-	public List<Target> getAuraTargets(Minion minion) {
+	
+	public Set<Target> getAuraTargets(Minion minion) {
 		
-		List<Target> targets = new ArrayList<>();
+		Set<Target> targets = new HashSet<>();
 		return targets;
 	}
 
