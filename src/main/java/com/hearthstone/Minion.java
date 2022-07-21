@@ -6,15 +6,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import com.hearthstone.actions.Action;
 import com.hearthstone.actions.EntitySource;
 import com.hearthstone.actions.EntityTarget;
+import com.hearthstone.actions.Source;
 import com.hearthstone.actions.Target;
 import com.hearthstone.cards.Card;
 
 import com.hearthstone.cards.MinionCard;
 
 import com.hearthstone.cards.util.CardUtil;
+import com.hearthstone.listeners.ActionListener;
 
 public class Minion implements EntitySource, EntityTarget {
 	
@@ -22,10 +27,10 @@ public class Minion implements EntitySource, EntityTarget {
 	private int baseHealth; // 基础血量，来自于卡牌内部
 	private int baseAttack;
 	
-	private int health; // 当前血量，可能被各种buff过
+	private int health; // 当前基础剩余血量
 	private int attack;
 	
-	private int remainingHealth; // 当前基础剩余血量
+	private int remainingHealth; // 当前剩余血量，可能被各种buff过
 	
 	// 每轮的攻击次数
 	private int attackCount;
@@ -39,6 +44,7 @@ public class Minion implements EntitySource, EntityTarget {
 	
 	
 	
+	
 	// 接收的auras
 	private Map<EntitySource, Aura> auras;
 	
@@ -49,9 +55,16 @@ public class Minion implements EntitySource, EntityTarget {
 	private boolean rush;
 	private boolean taunt;
 	private boolean dormant;
+	private boolean stealth;
+	
+	// 是否被沉默
+	private boolean disabled;
 	
 	// 上场的第几轮
 	private int round;
+	
+	// 事件监听列表，对于action
+	private List<ActionListener> listeners;
 	
 	public Minion(MinionCard card) {
 		this.card = card;
@@ -62,7 +75,7 @@ public class Minion implements EntitySource, EntityTarget {
 		this.name = this.card.getName();
 		
 		this.round= 0 ;
-		this.cannotAttack = false;
+		this.cannotAttack = this.card.isCannotAttack();
 				
 		this.auras = new HashMap<>();
 		
@@ -78,8 +91,32 @@ public class Minion implements EntitySource, EntityTarget {
 		this.rush = this.card.isRush();
 		this.taunt = this.card.isTaunt();
 		this.dormant = this.card.isDormant();
+		this.stealth = this.card.isStealth();
+		
+		this.disabled = false;
+		
+		this.listeners = new ArrayList<>();
 	}
 	
+	// 向minion添加listener
+	public void addActionListener(ActionListener listener) {
+		this.listeners.add(listener);
+	}
+	
+	// 删除listener，根据source，删除
+	public void removeActionListener(Source source) {
+		for(int i=this.listeners.size()-1; i>=0; i--) {
+			if(this.listeners.get(i).getSource()==source) {
+				this.listeners.remove(i);
+			}
+		}
+	}
+		
+
+	public List<ActionListener> getListeners() {
+		return listeners;
+	}
+
 	
 
 	public boolean isCharge() {
@@ -112,9 +149,17 @@ public class Minion implements EntitySource, EntityTarget {
 	}
 
 	// 增加buff和aura的计算
-	public void causeDamage(int damage) {
-				
+	public List<ActionChoices> causeDamage(int damage) {
+		
+		List<ActionChoices> ret = new ArrayList<>();
+			
 		this.remainingHealth -= damage;
+		
+		Action action = new Action(this, null, "damage");
+		ActionChoices ac = new ActionChoices(action, null);
+		ret.add(ac);
+		
+		return ret;
 				
 	}
 
@@ -165,23 +210,23 @@ public class Minion implements EntitySource, EntityTarget {
 	}
 
 	// 获取攻击目标，由于后期的charge等状态可能有所改变，所以不再继承card
-	public Set<Target> getTargets() {
-		Set<Target> targets = new HashSet<>();
+	public SortedSet<Target> getTargets() {
+		SortedSet<Target> targets = new TreeSet<>();
 		
 		// 处理冲锋
 		if(this.charge ) {
-			targets.addAll(CardUtil.parseTargets(this.card, "op_attackable"));
+			targets.addAll(CardUtil.parseTargets(this.card, "(op_minions-op_dormant_minions)|op_hero", null));
 			
 		}
 		
 		// 处理突袭
 		if(this.rush ) {
-			targets.addAll(CardUtil.parseTargets(this.card, "op_attackable_minions"));
+			targets.addAll(CardUtil.parseTargets(this.card, "op_minions-op_dormant_minions", null));
 		}
 		
 		// 判断轮数
 		if(this.getRound() > 0) {
-			targets.addAll(CardUtil.parseTargets(this.card, "op_attackable"));
+			targets.addAll(CardUtil.parseTargets(this.card, "(op_minions-op_dormant_minions)|op_hero", null));
 		}
 		
 		return targets;
@@ -195,7 +240,9 @@ public class Minion implements EntitySource, EntityTarget {
 		return false;
 	}
 	
-	public void attack(Target target) {
+	public List<ActionChoices> attack(Target target) {
+		
+		List<ActionChoices> ret = new ArrayList<>();
 		
 		// TODO 要考虑各种状态
 		if(target instanceof Hero) {
@@ -205,16 +252,19 @@ public class Minion implements EntitySource, EntityTarget {
 			int healthAttack = this.getAttack() - armorAttack;
 			
 			hero.setArmor(hero.getArmor() - armorAttack);
-			hero.causeDamage( healthAttack);
+			ret.addAll( hero.causeDamage( healthAttack) );
 			
 		}
 		else if(target instanceof Minion) {
 			Minion minion = (Minion)target;
-			minion.causeDamage( this.getAttack());
-			this.causeDamage( minion.getAttack());
+			
+			ret.addAll( minion.causeDamage( this.getAttack()) );
+			ret.addAll( this.causeDamage( minion.getAttack()) );
 		}
 		
 		this.remainingAttackCount --;
+		
+		return ret;
 	}
 
 	@Override
@@ -242,14 +292,17 @@ public class Minion implements EntitySource, EntityTarget {
 		if(buff.getAttackAdd()>0) {
 			this.attack+=buff.getAttackAdd();
 		}
-		else if(buff.getAttackSet()>0) {
+		
+		if(buff.getAttackSet()>0) {
 			this.attack = buff.getAttackSet();
 		}
-		else if(buff.getHealthAdd()>0) {
+		
+		if(buff.getHealthAdd()>0) {
 			this.health += buff.getHealthAdd();
 			this.remainingHealth += buff.getHealthAdd();
 		}
-		else if(buff.getHealthSet()>0) {
+		
+		if(buff.getHealthSet()>0) {
 			this.health = buff.getHealthSet();
 			
 			// 需要重新计算remainingHealth
@@ -260,11 +313,50 @@ public class Minion implements EntitySource, EntityTarget {
 				Aura aura = this.auras.get(source);
 											
 				if(aura.getHealthAdd()>0) {
-					this.remainingHealth += aura.getAttackAdd();
+					this.remainingHealth += aura.getHealthAdd();
 				}
 			}
 			
 		}
+	}
+	
+	// 沉默
+	public void disable() {
+		this.attack = this.baseAttack;
+		// 需要重新计算attack
+		for(EntitySource source: this.auras.keySet()) {
+			
+			Aura aura = this.auras.get(source);
+										
+			if(aura.getAttackAdd()>0) {
+				this.attack += aura.getAttackAdd();
+			}
+		}
+		
+		
+		this.health = this.baseHealth;
+		
+		// 首先计算一下，health为满的状态下的fullHealth
+		int fullHealth = this.health;
+		for(EntitySource source: this.auras.keySet()) {
+			
+			Aura aura = this.auras.get(source);
+										
+			if(aura.getHealthAdd()>0) {
+				fullHealth += aura.getAttackAdd();
+			}
+		}
+		
+		// 如果remainingHealth大于fullHealth，则变小
+		if(this.remainingHealth > fullHealth)
+			this.remainingHealth = fullHealth;
+		
+				
+		// 从该minion的auratargets中移除aura
+		for(Target target: this.getAuraTargets()) {
+			target.removeAura(this);
+		}
+		
 	}
 
 	
@@ -278,6 +370,11 @@ public class Minion implements EntitySource, EntityTarget {
 	public int getHealth() {
 		// TODO Auto-generated method stub
 		return this.health;
+	}
+	
+
+	public boolean isStealth() {
+		return stealth;
 	}
 
 	public Aura getAura() {
@@ -313,6 +410,10 @@ public class Minion implements EntitySource, EntityTarget {
 			this.attack -= aura.getAttackAdd();
 		}
 		
+	}
+	
+	public void deathRattle() {
+		this.card.deathRattle(this);
 	}
 }
 

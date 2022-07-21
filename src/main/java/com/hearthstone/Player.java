@@ -4,11 +4,16 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hearthstone.actions.Action;
+import com.hearthstone.actions.EntitySource;
+import com.hearthstone.actions.Source;
+import com.hearthstone.actions.Target;
 import com.hearthstone.cards.Card;
 import com.hearthstone.heros.Mage;
 import com.hearthstone.heros.Warrior;
+import com.hearthstone.listeners.ActionListener;
 
-public class Player {
+public class Player implements Source {
 	
 	private List<Card> handCards;
 	private List<Card> deckCards;
@@ -22,6 +27,12 @@ public class Player {
 	private int turn;
 	
 	private Game game;
+	
+	// 事件监听列表，对于action
+	private List<ActionListener> listeners;
+	
+	// 无牌后每次掉血的量
+	private int cardEnd;
 	
 	public Player(Game game, String name) {
 		this.handCards = new ArrayList<>();
@@ -38,9 +49,31 @@ public class Player {
 		}
 		
 		this.game = game;
+		
+		this.listeners = new ArrayList<>();
+		
+		this.cardEnd = 1;
+	}
+	
+	// 向player添加listener
+	public void addActionListener(ActionListener listener) {
+		this.listeners.add(listener);
+	}
+	
+	// 从player中删除listener，根据source，删除
+	public void removeActionListener(Source source) {
+		for(int i=this.listeners.size()-1; i>=0; i--) {
+			if(this.listeners.get(i).getSource()==source) {
+				this.listeners.remove(i);
+			}
+		}
 	}
 	
 	
+
+	public List<ActionListener> getListeners() {
+		return listeners;
+	}
 
 	public List<Card> getHandCards() {
 		return handCards;
@@ -119,6 +152,25 @@ public class Player {
 		}
 		
 	}
+	
+	// 抓一张牌
+	public void draw() {
+		
+		// 如果还有牌，就抓第一张
+		if(this.deckCards.size()>0) {
+			Card card = this.deckCards.remove(0);
+			this.handCards.add(card);
+		} 
+		// 否则就掉血了
+		else {
+			this.hero.causeDamage(this.cardEnd);		
+			this.cardEnd++;
+		}
+		
+		
+	}
+
+	
 	
 }
 

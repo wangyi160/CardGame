@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.hearthstone.actions.Action;
-import com.hearthstone.cards.classics.MyCard;
+import com.hearthstone.cards.classics.MyMinionCard;
 
 public class Game {
 
@@ -23,11 +23,11 @@ public class Game {
 		player1.setTurn(0);
 		player2.setTurn(1);
 		
-		player1.giveCard(new MyCard(player1));
-		player1.giveCard(new MyCard(player1));
+		player1.giveCard(new MyMinionCard(player1));
+		player1.giveCard(new MyMinionCard(player1));
 		
-		player2.giveCard(new MyCard(player2));
-		player2.giveCard(new MyCard(player2));
+		player2.giveCard(new MyMinionCard(player2));
+		player2.giveCard(new MyMinionCard(player2));
 		
 		
 		

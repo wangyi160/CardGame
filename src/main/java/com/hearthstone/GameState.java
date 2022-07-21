@@ -8,6 +8,7 @@ import com.hearthstone.actions.Action;
 import com.hearthstone.actions.EntityTarget;
 import com.hearthstone.actions.Target;
 import com.hearthstone.cards.Card;
+import com.hearthstone.listeners.ActionListener;
 
 public class GameState {
 	
@@ -17,11 +18,15 @@ public class GameState {
 	
 	private boolean gameOver;
 	
+	private List<ActionChoices> acs;
+	
 	public GameState(Player player1, Player player2) {
 		this.player1=player1;
 		this.player2=player2;
 		
 		this.gameOver = false;
+		
+		this.acs = new ArrayList<>();
 	}
 	
 	
@@ -139,10 +144,71 @@ public class GameState {
 		
 	}
 	
-	public void takeAction(Action action, List<Integer> targetChoices) {
-		action.take(targetChoices);	
+	private List<ActionChoices> preAction(Action action) {
+		List<ActionChoices> ret = new ArrayList<>();
 		
-		// 处理hero
+		// 触发player的actionListeners, 调用handleBefore
+		
+		for(ActionListener listener: this.player1.getListeners()) {
+			ret.addAll(listener.handleBefore(action));
+		}
+		
+		for(ActionListener listener: this.player2.getListeners()) {
+			ret.addAll(listener.handleBefore(action));
+		}
+		
+		// 触发minion的actionListeners
+		for(int i=0;i<this.player1.getMinions().size();i++) {
+			
+			Minion minion = this.player1.getMinions().get(i);
+			for(ActionListener listener: minion.getListeners()) {
+				ret.addAll(listener.handleBefore(action));
+			}
+		}
+		
+		for(int i=0;i<this.player2.getMinions().size();i++) {
+			
+			Minion minion = this.player2.getMinions().get(i);
+			for(ActionListener listener: minion.getListeners()) {
+				ret.addAll(listener.handleBefore(action));
+			}
+		}
+		
+		return ret;
+		
+	}
+	
+	private List<ActionChoices> postAction(Action action) {
+		
+		List<ActionChoices> ret = new ArrayList<>();
+		
+		// 触发player的actionListeners, 调用handleAfter
+		for(ActionListener listener: this.player1.getListeners()) {
+			ret.addAll(listener.handleAfter(action));
+		}
+		
+		for(ActionListener listener: this.player2.getListeners()) {
+			ret.addAll(listener.handleAfter(action));
+		}
+		
+		// 触发minion的actionListeners
+		for(int i=0;i<this.player1.getMinions().size();i++) {
+			
+			Minion minion = this.player1.getMinions().get(i);
+			for(ActionListener listener: minion.getListeners()) {
+				ret.addAll(listener.handleAfter(action));
+			}
+		}
+		
+		for(int i=0;i<this.player2.getMinions().size();i++) {
+			
+			Minion minion = this.player2.getMinions().get(i);
+			for(ActionListener listener: minion.getListeners()) {
+				ret.addAll(listener.handleAfter(action));
+			}
+		}
+		
+		// 处理hero死亡
 		if(this.player1.getHero().getRemainingHealth()<=0) {
 			this.gameOver=true;
 		}
@@ -153,7 +219,7 @@ public class GameState {
 
 		
 		
-		// 处理minions
+		// 处理minions死亡
 		for(int i=this.player1.getMinions().size()-1;i>=0;i--) {
 			
 			Minion minion = this.player1.getMinions().get(i);
@@ -163,6 +229,9 @@ public class GameState {
 				for(Target target: minion.getAuraTargets()) {
 					target.removeAura(minion);
 				}
+				
+				// 如果该minion在player或minion中引起actionlistener，将其移除
+				removeListeners(minion);
 				
 				// 从player的minions列表中移除
 				this.player1.getMinions().remove(i);
@@ -178,14 +247,16 @@ public class GameState {
 				for(Target target: minion.getAuraTargets()) {
 					target.removeAura(minion);
 				}
+				
+				// 如果该minion在player或minion中引起actionlistener，将其移除
+				removeListeners(minion);
 
 				this.player2.getMinions().remove(i);
 			}
 		}
 		
 		// 处理auras
-		
-		
+				
 		for(int i=0; i<this.player1.getMinions().size();i++) {
 			
 			Minion minion = this.player1.getMinions().get(i);
@@ -212,7 +283,78 @@ public class GameState {
 			}
 		}
 		
+		return ret;
 		
+		
+	}
+	
+	private void removeListeners(Minion minion) {
+		// 触发player的actionListeners, 调用handleBefore
+		
+		for(int i=this.player1.getListeners().size()-1; i>=0; i--) {
+			ActionListener listener = this.player1.getListeners().get(i);
+			if(listener.getSource() == minion) {
+				this.player1.getListeners().remove(i);
+			}
+		}
+		
+		for(int i=this.player2.getListeners().size()-1; i>=0; i--) {
+			ActionListener listener = this.player2.getListeners().get(i);
+			if(listener.getSource() == minion) {
+				this.player2.getListeners().remove(i);
+			}
+		}
+		
+		// 触发minion的actionListeners
+		for(int i=0;i<this.player1.getMinions().size();i++) {
+			
+			Minion m = this.player1.getMinions().get(i);
+			for(int j = m.getListeners().size()-1; j>=0; j--) {
+				ActionListener listener = m.getListeners().get(j);
+				if(listener.getSource() == minion) {
+					m.getListeners().remove(j);
+				}
+			}
+		}
+		
+		for(int i=0;i<this.player2.getMinions().size();i++) {
+			
+			Minion m = this.player2.getMinions().get(i);
+			for(int j = m.getListeners().size()-1; j>=0; j--) {
+				ActionListener listener = m.getListeners().get(j);
+				if(listener.getSource() == minion) {
+					m.getListeners().remove(j);
+				}
+			}
+		}
+		
+	}
+	
+	// 有可能一个action会牵连出其他的action，因此这里处理的应该是一个列表
+	public void takeAction(Action action, List<Integer> targetChoices) {
+		this.acs.add(new ActionChoices(action, targetChoices));
+		
+		while(this.acs.size()>0) {
+			ActionChoices ac = this.acs.remove(0);
+			this.takeAction(ac);
+		}
+		
+	}
+	
+	// 执行某一个特定的action
+	public void takeAction(ActionChoices ac) {
+		
+		// 有可能action被阻止掉
+		List<ActionChoices> preAcs = preAction(ac.getAction());
+		this.acs.addAll(preAcs);
+		
+		// 实际进行action
+		List<ActionChoices> takeAcs =  ac.getAction().take(ac.getTargetChoices());	
+		this.acs.addAll(takeAcs);
+		
+		// action造成的效果进行处理
+		List<ActionChoices> postAcs = postAction(ac.getAction());
+		this.acs.addAll(postAcs);
 	}
 	
 	

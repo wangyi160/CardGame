@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
+import com.hearthstone.ActionChoices;
 import com.hearthstone.Aura;
 import com.hearthstone.GameState;
 import com.hearthstone.Minion;
@@ -24,16 +26,25 @@ public class MinionCard extends Card {
 	protected boolean charge;
 	protected boolean rush;
 	protected boolean taunt;
+	protected boolean aura;
+	
 	protected boolean dormant;
 	protected int dormantRound;
+	
+	protected boolean cannotAttack;
+	
+	protected boolean stealth;
+	
+	protected int cryDamage;
+	
 	
 	public MinionCard(Player player) {
 		super(player);
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void play(Set<Target> targets, List<Integer> targetChoices) {
-		super.play(targets, targetChoices);
+	public List<ActionChoices> play(SortedSet<Target> targets, List<Integer> targetChoices) {
+		List<ActionChoices> ret = super.play(targets, targetChoices);
 		
 		// 生成一个minion
 				
@@ -42,17 +53,23 @@ public class MinionCard extends Card {
 		
 		
 		// 战吼
-		battleCry(minion);
-		
-		
-			
+		ret.addAll(battleCry(minion, targets, targetChoices));
+					
 		// 光环
-		if(this instanceof AuraTrait) {
+		if(this.aura) {
 			aura(minion);
 		}
+		
+		return ret;
+		
 	}
 	
-	public void battleCry(Minion minion) {
+	public List<ActionChoices> battleCry(Minion minion, SortedSet<Target> targets, List<Integer> targetChoices) {
+		return new ArrayList<>();
+	}
+	
+	// 亡语
+	public void deathRattle(Minion minion) {
 		
 	}
 	
@@ -62,13 +79,6 @@ public class MinionCard extends Card {
 
 	// 这个是设置自身的aura
 	public void aura(Minion minion) {
-		// TODO Auto-generated method stub
-		Aura aura = new Aura(minion);
-		
-		aura.setAttackAdd(1);
-		aura.setHealthAdd(1);
-		
-		minion.setAura(aura);
 		
 	}
 	
@@ -136,6 +146,38 @@ public class MinionCard extends Card {
 
 	public void setDormant(boolean dormant) {
 		this.dormant = dormant;
+	}
+
+	public boolean isAura() {
+		return aura;
+	}
+
+	public void setAura(boolean aura) {
+		this.aura = aura;
+	}
+
+	public int getDormantRound() {
+		return dormantRound;
+	}
+
+	public void setDormantRound(int dormantRound) {
+		this.dormantRound = dormantRound;
+	}
+
+	public boolean isCannotAttack() {
+		return cannotAttack;
+	}
+
+	public void setCannotAttack(boolean cannotAttack) {
+		this.cannotAttack = cannotAttack;
+	}
+
+	public boolean isStealth() {
+		return stealth;
+	}
+
+	public void setStealth(boolean stealth) {
+		this.stealth = stealth;
 	}
 
 	

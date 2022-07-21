@@ -6,7 +6,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import com.hearthstone.actions.Action;
 import com.hearthstone.actions.EntitySource;
 import com.hearthstone.actions.EntityTarget;
 import com.hearthstone.actions.Target;
@@ -109,9 +112,9 @@ public class Hero implements EntitySource, EntityTarget
 	}
 
 
-	public Set<Target> getTargets() {
+	public SortedSet<Target> getTargets() {
 		
-		Set<Target> targets = new HashSet<>();
+		SortedSet<Target> targets = new TreeSet<>();
 		
 		// 将对手的英雄和所有的minion都加入到targets中
 		GameState state = this.player.getGame().getGameState();
@@ -126,8 +129,8 @@ public class Hero implements EntitySource, EntityTarget
 				
 	}
 	
-	public Set<Target> getPowerTargets() {
-		return new HashSet<Target>();
+	public SortedSet<Target> getPowerTargets() {
+		return new TreeSet<Target>();
 	}
 	
 	public boolean canUsePower() {
@@ -142,13 +145,15 @@ public class Hero implements EntitySource, EntityTarget
 		return false;
 	}
 	
-	public void heroPower(Set<Target> targets, List<Integer> targetChoices) {
-		
+	public List<ActionChoices> heroPower(SortedSet<Target> targets, List<Integer> targetChoices) {
+		return new ArrayList<>();
 	}
 	
-	public void attack(Target target) {
+	public List<ActionChoices> attack(Target target) {
 		
 		// TODO 要考虑各种状态
+		
+		List<ActionChoices> ret = new ArrayList<>();
 		
 		if(target instanceof Hero) {
 			Hero hero =(Hero) target;
@@ -157,16 +162,18 @@ public class Hero implements EntitySource, EntityTarget
 			int healthAttack = this.getAttack() - armorAttack;
 			
 			hero.setArmor(hero.getArmor() - armorAttack);
-			hero.causeDamage(healthAttack);
+			ret.addAll( hero.causeDamage(healthAttack) );
 			
 		}
 		else if(target instanceof Minion) {
 			Minion minion = (Minion)target;
-			minion.causeDamage(this.getAttack());
-			this.causeDamage(minion.getAttack());
+			ret.addAll( minion.causeDamage(this.getAttack()) );
+			ret.addAll( this.causeDamage(minion.getAttack()) );
 		}
 		
 		this.remainingAttackCount --;
+		
+		return ret;
 	}
 	
 	public void resetAttackCount() {
@@ -258,9 +265,16 @@ public class Hero implements EntitySource, EntityTarget
 
 
 	@Override
-	public void causeDamage(int damage) {
-		// TODO Auto-generated method stub
+	public List<ActionChoices> causeDamage(int damage) {
+		List<ActionChoices> ret = new ArrayList<>();
+		
 		this.remainingHealth -= damage;
+		
+		Action action = new Action(this, null, "damage");
+		ActionChoices ac = new ActionChoices(action, null);
+		ret.add(ac);
+		
+		return ret;
 	}
 	
 
